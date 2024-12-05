@@ -8,3 +8,5 @@ flask = "*"
 
 [dev-packages]
 # pytest-cov = "==3.*"
+pytest = "*"
+flake8 = "*"
