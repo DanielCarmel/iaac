@@ -1,30 +1,31 @@
 # Stage 1: Build stage
-FROM python:3.11-slim AS builder
+FROM python:3.12-slim AS builder
 
-# Set working directory
+# Install pipenv and compilation dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && pip install --no-cache-dir pipenv \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Copy requirements file and install dependencies
-COPY requirements.txt .
+COPY Pipfile .
+COPY Pipfile.lock .
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy project files into the build stage
-COPY . .
+# Install python dependencies in .venv
+RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy --ignore-pipfile
 
 # Stage 2: Final stage
-FROM python:3.11-slim
+FROM python:3.12-slim
 
-# Set working directory
 WORKDIR /app
 
-
-# Copy only necessary files from the build stage
-COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
-COPY --from=builder /app /app
+# Copy virtual env from python-deps stage
+COPY --from=builder /app/.venv /app/.venv
+COPY . .
+ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 3000
-
-# Command to run the application
 CMD ["python", "app.py"]
