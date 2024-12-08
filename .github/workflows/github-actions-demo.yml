@@ -81,7 +81,7 @@ jobs:
         run: terraform validate
       - name: Terraform Apply
         shell: bash
-        env:
-          IMAGE_TAG: ${{ github.sha }}
+#        env:
+#          IMAGE_TAG: ${{ github.sha }}
         working-directory: ./terraform
-        run: terraform apply -auto-approve -var 'IMAGE_TAG=${IMAGE_TAG}'
+        run: terraform apply -auto-approve

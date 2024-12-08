@@ -41,6 +41,12 @@ variable "AWS_SECRET_ACCESS_KEY" {
 variable "IMAGE_TAG" {
   description = "Docker image tag"
   type        = string
+  default     = "1"
+}
+
+variable "ECR_REPOSITORY" {
+  description = "ECR repo name"
+  type        = string
 }
 
 # These are things we'll use in various places
