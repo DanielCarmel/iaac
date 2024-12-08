@@ -1,7 +1,7 @@
 name: CI/CD
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+run-name: ${{ github.actor }} is running GitHub Actions
 permissions:
-  id-token: write
+  id-token: write  # for AWS assume role(ECR push)
 on:
   push:
     branches:
@@ -82,7 +82,10 @@ jobs:
       - name: Terraform Apply
         shell: bash
         env:
-          IMAGE_TAG: ${{ github.sha }}
-          ECR_REPOSITORY: ${{ github.repository }}
+#          IMAGE_TAG: ${{ github.sha }}
+#          ECR_REPOSITORY: ${{ github.repository }}
+          TF_VAR_image_tag: ${{ github.sha }}
+          TF_VAR_ecr_repository: ${{ github.repository }}
         working-directory: ./terraform
-        run: terraform apply -auto-approve -var "IMAGE_TAG=[\"${IMAGE_TAG}\"]" -var "ECR_REPOSITORY=[\"${ECR_REPOSITORY,,}\"]"
+        # run: terraform apply -auto-approve -var "image_tag=[\"${IMAGE_TAG}\"]" -var "ecr_repository=[\"${ECR_REPOSITORY,,}\"]"
+        run: terraform apply -auto-approve

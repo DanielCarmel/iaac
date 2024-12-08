@@ -38,12 +38,12 @@ variable "AWS_SECRET_ACCESS_KEY" {
   type        = string
 }
 
-variable "IMAGE_TAG" {
+variable "image_tag" {
   description = "Docker image tag"
   type        = string
 }
 
-variable "ECR_REPOSITORY" {
+variable "ecr_repository" {
   description = "ECR repo name"
   type        = string
 }

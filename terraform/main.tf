@@ -44,8 +44,8 @@ resource "aws_security_group" "my_security_group" {
 
 resource "aws_instance" "app_server" {
   user_data = base64encode(templatefile("userdata.tpl", {
-    IMG_TAG = var.IMAGE_TAG,
-    ECR_REPOSITORY = var.ECR_REPOSITORY,
+    IMG_TAG = var.image_tag,
+    ECR_REPOSITORY = var.ecr_repository,
     REGION = var.region
   }))
   user_data_replace_on_change = true
