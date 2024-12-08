@@ -38,11 +38,16 @@ variable "AWS_SECRET_ACCESS_KEY" {
   type        = string
 }
 
+variable "IMAGE_TAG" {
+  description = "Docker image tag"
+  type        = string
+}
+
 # These are things we'll use in various places
 locals {
   tags = {
-    Terraform = "true"
-    Region = var.region
+    Terraform     = "true"
+    Region        = var.region
     Instance_name = var.instance_name
   }
 }

@@ -15,7 +15,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region     = var.region
   access_key = var.AWS_ACCESS_KEY_ID
   secret_key = var.AWS_SECRET_ACCESS_KEY
 }
@@ -43,10 +43,13 @@ resource "aws_security_group" "my_security_group" {
 }
 
 resource "aws_instance" "app_server" {
-  user_data              = file("userdata.tpl")
-  key_name               = var.key_name
-  ami                    = var.instance_ami
-  instance_type          = var.instance_type
-  vpc_security_group_ids = [aws_security_group.my_security_group.id]
-  tags = local.tags
+  user_data = base64encode(templatefile("userdata.tpl", { IMG_TAG = var.IMAGE_TAG,
+    ECR_REPOSITORY = "name",
+  REGION = var.region }))
+  user_data_replace_on_change = true
+  key_name                    = var.key_name
+  ami                         = var.instance_ami
+  instance_type               = var.instance_type
+  vpc_security_group_ids      = [aws_security_group.my_security_group.id]
+  tags                        = local.tags
 }
