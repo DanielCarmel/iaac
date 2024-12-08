@@ -85,4 +85,4 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           ECR_REPOSITORY: ${{ github.repository }}
         working-directory: ./terraform
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var "IMAGE_TAG=[\"${IMAGE_TAG}\"]" -var "ECR_REPOSITORY=[\"${ECR_REPOSITORY,,}\"]"
