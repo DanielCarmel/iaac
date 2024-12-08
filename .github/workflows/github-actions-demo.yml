@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: CI/CD
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 permissions:
   id-token: write
@@ -61,7 +61,7 @@ jobs:
           ECR_REPOSITORY: ${{ steps.repo-name.outputs.repository-name }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build "${{ inputs.docker_build_dir }}" -f "${{ inputs.path_to_dockerfile }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build "${{ inputs.docker_build_dir }}" -f "${{ inputs.path_to_dockerfile }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
           echo "image_tag=$IMAGE_TAG" 
