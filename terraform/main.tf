@@ -20,6 +20,7 @@ provider "aws" {
   secret_key = var.AWS_SECRET_ACCESS_KEY
 }
 
+# Create security group
 resource "aws_security_group" "my_security_group" {
   ingress {
     from_port   = 22
@@ -42,16 +43,68 @@ resource "aws_security_group" "my_security_group" {
   tags = local.tags
 }
 
+# Create an IAM Role
+resource "aws_iam_role" "ec2_ecr_role" {
+  name = "ec2-ecr-access-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# Attach ECR Policy to the Role
+resource "aws_iam_role_policy" "ecr_policy" {
+  name = "ecr-policy"
+  role = aws_iam_role.ec2_ecr_role.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:DescribeRepositories",
+          "ecr:ListImages",
+          "ecr:BatchGetImage"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Create an Instance Profile
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "ec2-instance-profile"
+  role = aws_iam_role.ec2_ecr_role.name
+}
+
 resource "aws_instance" "app_server" {
   user_data = base64encode(templatefile("userdata.tpl", {
-    IMG_TAG = var.image_tag,
+    IMG_TAG        = var.image_tag,
     ECR_REPOSITORY = var.ecr_repository,
-    REGION = var.region
+    REGION         = var.region
   }))
   user_data_replace_on_change = true
   key_name                    = var.key_name
   ami                         = var.instance_ami
   instance_type               = var.instance_type
   vpc_security_group_ids      = [aws_security_group.my_security_group.id]
-  tags                        = local.tags
+  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "optional"
+    http_put_response_hop_limit = 2
+  }
+  tags = local.tags
 }
